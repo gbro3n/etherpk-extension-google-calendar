@@ -16,6 +16,9 @@ An [EtherPK](https://etherpk.com) extension that shows and edits your Google Cal
   label, busy or free, visibility, attachments, and a formatted description, and answer invitations.
 - **Several Google accounts**, each with its own calendars.
 
+It is listed in the EtherPK Extension Directory. Install it in EtherPK from Settings and Extensions,
+then Extensions. It needs EtherPK 0.11.0 or later.
+
 Google stays the only store of your events. Nothing about them is written into your graph, so they
 are never synced with it, searched, exported or published.
 
