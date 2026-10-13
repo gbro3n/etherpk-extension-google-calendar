@@ -1,0 +1,97 @@
+{
+    "name": "@gbro3n/etherpk-extension-google-calendar",
+    "version": "0.1.0",
+    "description": "Your Google Calendar and Google Tasks in EtherPK: a calendar with day, week, month, year and schedule views, and each day's events and tasks beneath that day's journal entry.",
+    "license": "MIT",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gbro3n/etherpk-extension-google-calendar.git"
+    },
+    "files": [
+        "dist",
+        "LICENSE",
+        "README.md"
+    ],
+    "etherpk": {
+        "id": "google-calendar",
+        "displayName": "Events for Google Calendar",
+        "publisher": "gbro3n",
+        "minClientVersion": "0.11.0",
+        "main": "./dist/main.js",
+        "styles": [
+            "./dist/main.css"
+        ],
+        "icons": {
+            "calendar-events": "<path d=\"M13.5 7.5V4.5A1.5 1.5 0 0 0 12 3H4a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 4 14h3.5M2.5 6.5h11M5.5 1.5v3M10.5 1.5v3\"/><circle cx=\"11.5\" cy=\"11.5\" r=\"3\"/><path d=\"M11.5 10v1.5l1 1\"/>"
+        },
+        "views": [
+            {
+                "kind": "google-calendar.calendar",
+                "target": "calendar",
+                "title": "Calendar Events",
+                "icon": "calendar-events",
+                "region": "main",
+                "address": {
+                    "segment": "calendar"
+                }
+            }
+        ],
+        "settings": [
+            {
+                "id": "client-id",
+                "type": "text",
+                "title": "Google OAuth Client ID",
+                "description": "The Client ID of the OAuth client you made in Google Cloud. Calendar Events walks you through making one.",
+                "placeholder": "1234567890-abc.apps.googleusercontent.com"
+            },
+            {
+                "id": "client-secret",
+                "type": "secret",
+                "title": "Google OAuth Client secret",
+                "description": "The Client secret of the same OAuth client. It stays with you, and follows you to your other devices where you sync."
+            },
+            {
+                "id": "journal-events",
+                "type": "boolean",
+                "default": true,
+                "title": "Show each day's events beneath its journal entry"
+            },
+            {
+                "id": "journal-tasks",
+                "type": "boolean",
+                "default": true,
+                "title": "Show each day's due tasks beneath its journal entry",
+                "description": "Tasks due that day from the task lists ticked in Calendar Events, below the day's events, under Due tasks."
+            },
+            {
+                "id": "journal-open-tasks",
+                "type": "boolean",
+                "default": true,
+                "title": "Show all tasks not yet completed beneath today's journal entry",
+                "description": "Every open task in the task lists ticked in Calendar Events, due or not, grouped by list, below the day's due tasks."
+            }
+        ]
+    },
+    "scripts": {
+        "prepack": "pnpm run build",
+        "build": "vite build",
+        "dev": "vite build --watch",
+        "check": "svelte-check --tsconfig ./tsconfig.json",
+        "test": "vitest run",
+        "test:e2e": "playwright test"
+    },
+    "devDependencies": {
+        "@appsoftwareltd/etherpk-extension-api": "^0.11.0",
+        "@event-calendar/core": "5.15.0",
+        "@playwright/test": "^1.59.1",
+        "@sveltejs/vite-plugin-svelte": "^7.0.0",
+        "@types/node": "^25.9.9",
+        "svelte": "5.57.1",
+        "svelte-check": "^4.4.6",
+        "typescript": "^6.0.2",
+        "vite": "^8.0.16",
+        "vitest": "^4.1.11"
+    },
+    "packageManager": "pnpm@11.5.3"
+}

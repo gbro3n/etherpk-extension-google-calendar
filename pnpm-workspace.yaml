@@ -1,0 +1,5 @@
+# New package versions wait a week before they can be installed, as in EtherPK itself. The Extension
+# API this release builds against is let through as soon as it is out.
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@appsoftwareltd/etherpk-extension-api@0.11.0'
