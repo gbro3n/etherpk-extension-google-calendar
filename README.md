@@ -8,16 +8,21 @@ An [EtherPK](https://etherpk.com) extension that shows and edits your Google Cal
 - **Each day's events and tasks beneath that day's journal entry**: the events first, all-day ones at
   the top, each with the name of its calendar, then the Google Tasks due that day under Due tasks,
   each with its task list. Today's entry also lists every task not yet completed, due or not,
-  grouped by task list. A switch in the extension's settings turns off each of the three.
+  grouped by task list. A switch in the extension's settings turns off each of the three. Add event
+  there starts an event on that day, and Add task starts a task with no due date.
 - **Google Tasks** on their days, from the task lists you tick under each account, as calendars are.
 - **Editing as in Google Calendar**: create, edit, drag to move, drag to resize and delete events,
   with Undo. Repeating events ask whether a change is for this event, this and following events, or
   all events. You can set guests and what they may do, a Google Meet link, notifications, colour or
   label, busy or free, visibility, attachments, and a formatted description, and answer invitations.
 - **Several Google accounts**, each with its own calendars.
+- **Where new events and tasks go**: below the calendar list in Calendar Events, New events go to
+  and New tasks go to choose the calendar and the task list that a new event or task starts in.
+  Until you choose one, and again if the one you chose is deleted in Google, a new event goes to
+  your main calendar and a new task to your first task list.
 
 It is listed in the EtherPK Extension Directory. Install it in EtherPK from Settings and Extensions,
-then Extensions. It needs EtherPK 0.11.0 or later.
+then Extensions. It needs EtherPK 0.14.0 or later.
 
 Google stays the only store of your events. Nothing about them is written into your graph, so they
 are never synced with it, searched, exported or published.
@@ -67,8 +72,8 @@ Following set up, with the extension enabled go back to the EtherPK user interfa
 ## What is kept, and where
 
 - The Client ID and Client secret are the extension's settings.
-- Each connected account's sign-in (a refresh token) and your calendar and task list choices are
-  kept with your other EtherPK settings.
+- Each connected account's sign-in (a refresh token), your calendar and task list choices, and
+  where new events and tasks go are kept with your other EtherPK settings.
 
 Where you sync with an EtherPK Sync Server, both follow you to your other devices, encrypted on your
 device so the server cannot read them. Without sync they stay on the device. Any code running in
@@ -92,6 +97,9 @@ ETHERPK_CLIENT_DIR=../etherpk pnpm test:e2e   # browser tests against an EtherPK
 
 The browser tests start the EtherPK Client from `ETHERPK_CLIENT_DIR` as a development server that
 loads this extension, and answer Google's addresses themselves, so they never reach Google.
+
+The buttons, fields, links and selects use the Client's control classes (`gk-button`, `gk-input`,
+`gk-select`, `gk-link`), so they look like EtherPK's own in the light and dark themes.
 
 ## Licence
 

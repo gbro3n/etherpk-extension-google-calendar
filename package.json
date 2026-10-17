@@ -1,6 +1,6 @@
 {
     "name": "@gbro3n/etherpk-extension-google-calendar",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Your Google Calendar and Google Tasks in EtherPK: a calendar with day, week, month, year and schedule views, and each day's events and tasks beneath that day's journal entry.",
     "license": "MIT",
     "type": "module",
@@ -17,7 +17,7 @@
         "id": "google-calendar",
         "displayName": "Events for Google Calendar",
         "publisher": "gbro3n",
-        "minClientVersion": "0.11.0",
+        "minClientVersion": "0.14.0",
         "main": "./dist/main.js",
         "styles": [
             "./dist/main.css"
