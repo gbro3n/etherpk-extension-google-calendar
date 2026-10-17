@@ -355,16 +355,16 @@
         <div class="gc-scroll"><SetupGuide {app} /></div>
     {:else}
         <header class="gc-toolbar">
-            <button type="button" class="gc-icon-button" aria-label={listOpen ? 'Hide the calendar list' : 'Show the calendar list'} aria-expanded={listOpen} onclick={() => (listOpen = !listOpen)}>
+            <button type="button" class="gk-icon-button" aria-label={listOpen ? 'Hide the calendar list' : 'Show the calendar list'} aria-expanded={listOpen} onclick={() => (listOpen = !listOpen)}>
                 <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11" /></svg>
             </button>
             <div class="gc-toolbar__lead">
-            <button type="button" class="gc-button" onclick={today} data-testid="gc-today">Today</button>
+            <button type="button" class="gk-button" onclick={today} data-testid="gc-today">Today</button>
             <div class="gc-toolbar__nav">
-                <button type="button" class="gc-icon-button" aria-label="Back" onclick={() => move(-1)} data-testid="gc-prev">
+                <button type="button" class="gk-icon-button" aria-label="Back" onclick={() => move(-1)} data-testid="gc-prev">
                     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M10 3.5 5.5 8 10 12.5" /></svg>
                 </button>
-                <button type="button" class="gc-icon-button" aria-label="Forward" onclick={() => move(1)} data-testid="gc-next">
+                <button type="button" class="gk-icon-button" aria-label="Forward" onclick={() => move(1)} data-testid="gc-next">
                     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" /></svg>
                 </button>
             </div>
@@ -377,16 +377,16 @@
             <div class="gc-toolbar__actions">
             <label class="gc-toolbar__views">
                 <span class="gc-visually-hidden">View</span>
-                <select class="gc-select" value={viewName} onchange={(event) => chooseView(event.currentTarget.value as ViewName)} data-testid="gc-view-picker">
+                <select class="gk-select" value={viewName} onchange={(event) => chooseView(event.currentTarget.value as ViewName)} data-testid="gc-view-picker">
                     {#each Object.entries(VIEW_LABELS) as [value, label] (value)}
                         <option {value}>{label}</option>
                     {/each}
                 </select>
             </label>
             {#if tasksReady}
-                <button type="button" class="gc-button" data-testid="gc-add-task" onclick={() => (taskEditor = { mode: 'create', day: isoDay(new Date()) })}>Add task</button>
+                <button type="button" class="gk-button" data-testid="gc-add-task" onclick={() => (taskEditor = { mode: 'create' })}>Add task</button>
             {/if}
-            <button type="button" class="gc-button gc-button--primary" data-testid="gc-create" onclick={() => create(new Date(Math.ceil(Date.now() / 1_800_000) * 1_800_000), new Date(Math.ceil(Date.now() / 1_800_000) * 1_800_000 + 3_600_000), false)}
+            <button type="button" class="gk-button gk-button--primary" data-testid="gc-create" onclick={() => create(new Date(Math.ceil(Date.now() / 1_800_000) * 1_800_000), new Date(Math.ceil(Date.now() / 1_800_000) * 1_800_000 + 3_600_000), false)}
                 >Create</button
             >
             </div>
@@ -398,11 +398,11 @@
                     {#if problem}{problem}{:else if rangeState === 'offline'}Google can't be reached, so the events shown may be out of date.{:else if rangeState === 'error'}{store.rangeProblem(shownRange!.start, shownRange!.end) ?? 'Some events could not be loaded.'}{:else}Google Tasks: {taskProblem}{/if}
                 </span>
                 {#if problem}
-                    <button type="button" class="gc-button" onclick={() => (problem = null)}>Dismiss</button>
+                    <button type="button" class="gk-button" onclick={() => (problem = null)}>Dismiss</button>
                 {:else}
                     <button
                         type="button"
-                        class="gc-button"
+                        class="gk-button"
                         data-testid="gc-retry"
                         onclick={() => {
                             if (!shownRange) return
@@ -537,13 +537,16 @@
     .gc-toolbar__state {
         color: var(--gk-text-muted);
     }
-    /* The view picker matches the buttons beside it (`.gc-button`): their height and soft border. A
-       select sizes itself unlike a button, so its height is set outright. */
-    .gc-toolbar__views .gc-select {
-        height: 2rem;
-        min-height: 0;
+    /* The view picker matches the buttons beside it (`gk-button`: 34px, and 44px on a touch
+       screen). A select sizes itself unlike a button, so its height is set outright. */
+    .gc-toolbar__views .gk-select {
+        height: 2.125rem;
         padding-block: 0;
-        border-color: var(--gk-border-soft);
+    }
+    @media (pointer: coarse) {
+        .gc-toolbar__views .gk-select {
+            height: 2.75rem;
+        }
     }
     .gc-scrim {
         position: absolute;

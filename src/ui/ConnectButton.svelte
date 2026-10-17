@@ -58,14 +58,14 @@
 <div class="gc-connect">
     {#if waiting}
         <span class="gc-connect__waiting" role="status" data-testid="gc-connect-waiting">Waiting for Google… Finish signing in in the window that opened.</span>
-        <button type="button" class="gc-button" onclick={() => waiting?.abort()}>Cancel</button>
+        <button type="button" class="gk-button" onclick={() => waiting?.abort()}>Cancel</button>
     {:else}
-        <button type="button" class={['gc-button', primary && 'gc-button--primary']} data-testid="gc-connect" disabled={!ready || !app.oauth} onclick={connect}
+        <button type="button" class={['gk-button', primary && 'gk-button--primary']} data-testid="gc-connect" disabled={!ready || !app.oauth} onclick={connect}
             >{label ?? (email ? 'Reconnect' : 'Connect Google account')}</button
         >
     {/if}
     {#if error}
-        <p class="gc-error gc-connect__error" role="alert" data-testid="gc-connect-error">{error}</p>
+        <p class="gk-error gc-connect__error" role="alert" data-testid="gc-connect-error">{error}</p>
     {/if}
 </div>
 

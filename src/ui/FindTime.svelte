@@ -81,7 +81,7 @@
     {#if found.kind === 'loading'}
         <p class="gc-muted" role="status">Looking at everyone's calendars…</p>
     {:else if found.kind === 'failed'}
-        <p class="gc-error" role="alert">{found.message}</p>
+        <p class="gk-error" role="alert">{found.message}</p>
     {:else}
         {#if clashing.length > 0}
             <p role="status">Busy at this time: {clashing.join(', ')}</p>
@@ -95,7 +95,7 @@
             <p class="gc-muted">Everyone is free at:</p>
             <div class="gc-find__slots">
                 {#each slots.slice(0, 12) as slot (slot.getTime())}
-                    <button type="button" class="gc-button" data-testid="gc-find-slot" onclick={() => onpick(slot)}>{time(slot)}</button>
+                    <button type="button" class="gk-button" data-testid="gc-find-slot" onclick={() => onpick(slot)}>{time(slot)}</button>
                 {/each}
             </div>
         {:else}

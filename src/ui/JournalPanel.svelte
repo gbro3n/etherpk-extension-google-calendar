@@ -10,12 +10,15 @@
      *   beneath their parent, leaving out those already under Due tasks.
      *
      * Clicking an event or task shows its details, where it can be edited or deleted as in Calendar
-     * Events, and Add event starts one on this day. A task ticked off in the open lists stays there,
-     * struck through, for the rest of the day, so nothing moves under the pointer.
+     * Events. Add event starts an event on this day, in the calendar chosen for new events, and Add
+     * task a task with no due date, in the list chosen for new tasks. A task ticked off in the open lists
+     * stays there, struck through, for the rest of the day, so nothing moves under the pointer.
      *
      * It loads once the entry's tab can be seen, and again every five minutes while it can. Before an
      * account is connected it says where to set one up. With every switch off the panel is not
-     * registered at all, and with events off it draws nothing on a day with no tasks to show.
+     * registered at all. Add task is there while a task switch is on and an account's sign-in allows
+     * Tasks, so with events off the panel still shows on a day with no tasks, to add one. Without
+     * Tasks, and with events off, it draws nothing on such a day.
      */
     import type { JournalPanelProps } from '@appsoftwareltd/etherpk-extension-api'
     import { onDestroy, untrack } from 'svelte'
@@ -130,6 +133,15 @@
         }
     }
 
+    /**
+     * Whether Add task is offered: a task switch is on, and an account's sign-in allows Tasks. The
+     * accounts are read through `app.accounts` so a new sign-in shows it at once.
+     */
+    const canAddTask = $derived.by(() => {
+        void app.accounts
+        return (app.journalTasks || app.journalOpenTasks) && app.tasks.on
+    })
+
     const hour12 = $derived(store.accounts.find((account) => account.status === 'ready')?.settings.format24HourTime === 'false')
     const needsReconnect = $derived(store.accounts.some((account) => account.status === 'reconnect'))
 
@@ -161,6 +173,10 @@
     onDestroy(() => pending?.answer(null))
 </script>
 
+{#snippet addTaskButton()}
+    <button type="button" class="gk-button gk-button--small" data-testid="gc-panel-add-task" onclick={() => (taskEditor = { mode: 'create' })}>Add task</button>
+{/snippet}
+
 {#snippet taskRow(task: ShownTask, depth: number, aside: { text: string; overdue: boolean } | null)}
     <li class="gc-panel__task" style:padding-left="{0.375 + depth * 1.5}rem" data-testid="gc-panel-task-row">
         <input type="checkbox" checked={task.done} aria-label="Done: {task.task.title || '(No title)'}" data-testid="gc-panel-task-done" onchange={() => void toggleTask(task.key)} />
@@ -171,16 +187,22 @@
     </li>
 {/snippet}
 
-<!-- Nothing at all, taking no space, when only tasks are asked for and the day has none. -->
-{#if setUp && !app.journalEvents && dueTasks.length === 0 && openGroups.length === 0 && !openProblem}{:else}
+<!-- Nothing at all, taking no space, when only tasks are asked for, the day has none, and none can be added. -->
+{#if setUp && !app.journalEvents && !canAddTask && dueTasks.length === 0 && openGroups.length === 0 && !openProblem}{:else}
 <section class={['gc-panel', app.dark && 'ec-dark']} aria-label="Calendar events" data-testid="gc-journal-panel" data-state={setUp ? rangeState : 'not-set-up'}>
-    <header class="gc-panel__head">
+    <!-- Each heading carries its own Add: Add event on Calendar, Add task on Tasks. With events off
+         the panel's own heading is Tasks, so Add task sits there. -->
+    <header class="gc-panel__head" data-testid="gc-panel-head">
         <h2 class="gc-panel__title">{app.journalEvents ? 'Calendar' : 'Tasks'}</h2>
         {#if setUp}
             {#if rangeState === 'refreshing'}<span class="gc-muted" role="status">Refreshing…</span>{/if}
             <div class="gc-panel__actions">
-                <button type="button" class="gc-link" data-testid="gc-panel-add" onclick={addEvent}>Add event</button>
-                <button type="button" class="gc-link" data-testid="gc-panel-open" onclick={() => app.openCalendar(day)}>Open Calendar Events</button>
+                {#if app.journalEvents}
+                    <button type="button" class="gk-button gk-button--small" data-testid="gc-panel-add" onclick={addEvent}>Add event</button>
+                {:else if canAddTask}
+                    {@render addTaskButton()}
+                {/if}
+                <button type="button" class="gk-button gk-button--small" data-testid="gc-panel-open" onclick={() => app.openCalendar(day)}>Open Calendar Events</button>
             </div>
         {/if}
     </header>
@@ -188,7 +210,7 @@
     {#if !setUp}
         <p class="gc-muted">
             Connect Google Calendar to see this day's events and tasks here.
-            <button type="button" class="gc-link" data-testid="gc-panel-setup" onclick={() => app.openCalendar()}>Set it up</button>
+            <button type="button" class="gk-link" data-testid="gc-panel-setup" onclick={() => app.openCalendar()}>Set it up</button>
         </p>
     {:else if rangeState === 'loading' && events.length === 0}
         <ul class="gc-panel__list" aria-busy="true" aria-label="Loading events">
@@ -198,11 +220,11 @@
         {#if rangeState === 'offline' || rangeState === 'error'}
             <p class="gc-panel__problem" role="alert">
                 {rangeState === 'offline' ? "Google can't be reached, so this day's events can't be loaded." : (store.rangeProblem(bounds.start, bounds.end) ?? "This day's events could not be loaded.")}
-                <button type="button" class="gc-link" data-testid="gc-panel-retry" onclick={() => void store.ensure(bounds.start, bounds.end, { force: true })}>Retry</button>
+                <button type="button" class="gk-link" data-testid="gc-panel-retry" onclick={() => void store.ensure(bounds.start, bounds.end, { force: true })}>Retry</button>
             </p>
         {/if}
         {#if needsReconnect}
-            <p class="gc-muted">An account needs connecting again. <button type="button" class="gc-link" onclick={() => app.openCalendar()}>Open Calendar Events</button></p>
+            <p class="gc-muted">An account needs connecting again. <button type="button" class="gk-link" onclick={() => app.openCalendar()}>Open Calendar Events</button></p>
         {/if}
         {#if app.journalEvents && events.length === 0 && rangeState !== 'offline' && rangeState !== 'error'}
             <p class="gc-muted" data-testid="gc-panel-empty">No events</p>
@@ -220,11 +242,14 @@
                 {/each}
             </ul>
         {/if}
-        <!-- Below the events, under a heading of their own as the events have Calendar: the day's due
-             tasks, each with its list, then (today) each list's open tasks. With events off, the
-             panel's own heading already reads Tasks. -->
-        {#if app.journalEvents && (dueTasks.length > 0 || openGroups.length > 0 || openProblem)}
-            <h2 class="gc-panel__title gc-panel__title--tasks">Tasks</h2>
+        <!-- Below the events, under a heading of their own as the events have Calendar, with Add task
+             on it: the day's due tasks, each with its list, then (today) each list's open tasks. With
+             events off, the panel's own heading already reads Tasks. -->
+        {#if app.journalEvents && (canAddTask || dueTasks.length > 0 || openGroups.length > 0 || openProblem)}
+            <header class="gc-panel__head gc-panel__head--tasks" data-testid="gc-panel-tasks-head">
+                <h2 class="gc-panel__title">Tasks</h2>
+                {#if canAddTask}<div class="gc-panel__actions">{@render addTaskButton()}</div>{/if}
+            </header>
         {/if}
         {#if dueTasks.length > 0}
             <section class="gc-panel__group" aria-label="Due tasks" data-testid="gc-panel-due">
@@ -236,10 +261,14 @@
                 </ul>
             </section>
         {/if}
+        <!-- Under a Tasks heading with nothing beneath it, once the day's tasks have been read, rather than standing empty. -->
+        {#if canAddTask && app.journalTasks && dueTasks.length === 0 && openGroups.length === 0 && !openProblem && app.tasks.read(bounds.start, bounds.end)}
+            <p class="gc-muted" data-testid="gc-panel-tasks-empty">No tasks due</p>
+        {/if}
         {#if openProblem}
             <p class="gc-panel__problem" role="alert">
                 {openProblem}
-                <button type="button" class="gc-link" data-testid="gc-panel-tasks-retry" onclick={() => void app.tasks.ensureOpen({ force: true })}>Retry</button>
+                <button type="button" class="gk-link" data-testid="gc-panel-tasks-retry" onclick={() => void app.tasks.ensureOpen({ force: true })}>Retry</button>
             </p>
         {/if}
         {#each openGroups as group (group.key)}
@@ -255,7 +284,7 @@
     {/if}
 
     {#if problem}
-        <p class="gc-panel__problem" role="alert">{problem} <button type="button" class="gc-link" onclick={() => (problem = null)}>Dismiss</button></p>
+        <p class="gc-panel__problem" role="alert">{problem} <button type="button" class="gk-link" onclick={() => (problem = null)}>Dismiss</button></p>
     {/if}
 </section>
 {/if}
@@ -323,12 +352,14 @@
         text-transform: uppercase;
         letter-spacing: 0.04em;
     }
-    .gc-panel__title--tasks {
+    .gc-panel__head--tasks {
         margin-top: 0.75rem;
     }
+    /* Wraps on a narrow phone rather than running past the entry's edge. */
     .gc-panel__actions {
         display: flex;
-        gap: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.25rem 0.75rem;
         margin-left: auto;
     }
     .gc-panel__list {

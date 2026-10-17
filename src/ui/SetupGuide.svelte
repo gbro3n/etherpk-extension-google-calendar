@@ -68,30 +68,30 @@
 
     <ol class="gc-setup__steps">
         <li>
-            <a class="gc-link" href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer">Create a Google Cloud project</a>. Any name works, such as EtherPK Calendar.
+            <a class="gk-link" href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer">Create a Google Cloud project</a>. Any name works, such as EtherPK Calendar.
         </li>
         <li>
-            Turn on the <a class="gc-link" href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank" rel="noopener noreferrer">Google Calendar API</a>, the
-            <a class="gc-link" href="https://console.cloud.google.com/apis/library/tasks.googleapis.com" target="_blank" rel="noopener noreferrer">Google Tasks API</a> and, for attachments, the
-            <a class="gc-link" href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener noreferrer">Google Drive API</a>.
+            Turn on the <a class="gk-link" href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank" rel="noopener noreferrer">Google Calendar API</a>, the
+            <a class="gk-link" href="https://console.cloud.google.com/apis/library/tasks.googleapis.com" target="_blank" rel="noopener noreferrer">Google Tasks API</a> and, for attachments, the
+            <a class="gk-link" href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener noreferrer">Google Drive API</a>.
         </li>
         <li>
-            Set up the <a class="gc-link" href="https://console.cloud.google.com/auth/branding" target="_blank" rel="noopener noreferrer">consent screen</a>: give the app a name, such as EtherPK Calendar
+            Set up the <a class="gk-link" href="https://console.cloud.google.com/auth/branding" target="_blank" rel="noopener noreferrer">consent screen</a>: give the app a name, such as EtherPK Calendar
             (Google does not allow its own product names there), choose External, and add your email address where it asks. Then, under Audience, choose Publish app, so your sign-in does not end after 7 days.
             Google does not need to review an app only you use. When you sign in, it warns that the app is unverified, and Advanced, then Go to your app's name, carries on.
         </li>
         <li>
-            <a class="gc-link" href="https://console.cloud.google.com/auth/clients/create" target="_blank" rel="noopener noreferrer">Create an OAuth client</a> of the type Web application, with these two addresses:
+            <a class="gk-link" href="https://console.cloud.google.com/auth/clients/create" target="_blank" rel="noopener noreferrer">Create an OAuth client</a> of the type Web application, with these two addresses:
             <dl class="gc-setup__addresses">
                 <dt>Authorised JavaScript origin</dt>
                 <dd>
                     <code data-testid="gc-setup-origin">{origin}</code>
-                    <button type="button" class="gc-button" onclick={() => copy(origin, 'origin')}>{copied === 'origin' ? 'Copied' : 'Copy'}</button>
+                    <button type="button" class="gk-button" onclick={() => copy(origin, 'origin')}>{copied === 'origin' ? 'Copied' : 'Copy'}</button>
                 </dd>
                 <dt>Authorised redirect URI</dt>
                 <dd>
                     <code data-testid="gc-setup-redirect">{redirect}</code>
-                    <button type="button" class="gc-button" onclick={() => copy(redirect, 'redirect')}>{copied === 'redirect' ? 'Copied' : 'Copy'}</button>
+                    <button type="button" class="gk-button" onclick={() => copy(redirect, 'redirect')}>{copied === 'redirect' ? 'Copied' : 'Copy'}</button>
                 </dd>
             </dl>
         </li>
@@ -100,11 +100,11 @@
 
     {#if editing}
         <form class="gc-setup__form" onsubmit={save} novalidate>
-            <label class="gc-field">
-                <span>Client ID</span>
+            <label class="gk-field">
+                <span class="gk-label">Client ID</span>
                 <input
                     bind:this={idField}
-                    class="gc-input"
+                    class="gk-input"
                     data-testid="gc-setup-client-id"
                     bind:value={clientId}
                     autocomplete="off"
@@ -115,13 +115,13 @@
                     onblur={validateId}
                     oninput={() => idError !== null && validateId()}
                 />
-                {#if idError}<span id="gc-id-error" class="gc-error">{idError}</span>{/if}
+                {#if idError}<span id="gc-id-error" class="gk-error">{idError}</span>{/if}
             </label>
-            <label class="gc-field">
-                <span>Client secret</span>
+            <label class="gk-field">
+                <span class="gk-label">Client secret</span>
                 <input
                     bind:this={secretField}
-                    class="gc-input"
+                    class="gk-input"
                     type="password"
                     data-testid="gc-setup-client-secret"
                     bind:value={clientSecret}
@@ -132,18 +132,18 @@
                     onblur={validateSecret}
                     oninput={() => secretError !== null && validateSecret()}
                 />
-                {#if secretError}<span id="gc-secret-error" class="gc-error">{secretError}</span>{/if}
+                {#if secretError}<span id="gc-secret-error" class="gk-error">{secretError}</span>{/if}
             </label>
             <div class="gc-setup__actions">
-                <button type="submit" class="gc-button gc-button--primary" data-testid="gc-setup-save">Save</button>
-                {#if app.oauth}<button type="button" class="gc-button" onclick={() => (editing = false)}>Cancel</button>{/if}
+                <button type="submit" class="gk-button gk-button--primary" data-testid="gc-setup-save">Save</button>
+                {#if app.oauth}<button type="button" class="gk-button" onclick={() => (editing = false)}>Cancel</button>{/if}
             </div>
         </form>
     {:else}
         <div class="gc-setup__connect">
             <p class="gc-muted">Your OAuth client is set. Connect the Google account whose calendars you want to see.</p>
             <ConnectButton {app} primary />
-            <button type="button" class="gc-link" onclick={() => (editing = true)}>Change the Client ID or secret</button>
+            <button type="button" class="gk-link" onclick={() => (editing = true)}>Change the Client ID or secret</button>
         </div>
     {/if}
 

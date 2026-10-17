@@ -30,15 +30,33 @@ describe("the person's records", () => {
         expect(records.defaultCalendar()).toBeNull()
     })
 
+    it('keeps the task list new tasks go to, and forgets it with its account', () => {
+        const records = createRecords(memoryPersonStorage(), memoryStorage())
+        records.putAccount(account('gardener@example.com'))
+        records.putAccount(account('orchard@example.com'))
+        expect(records.defaultTaskList()).toBeNull()
+        records.setDefaultTaskList({ account: 'orchard@example.com', listId: 'pruning' })
+        expect(records.defaultTaskList()).toEqual({ account: 'orchard@example.com', listId: 'pruning' })
+        records.removeAccount('gardener@example.com')
+        expect(records.defaultTaskList()).toEqual({ account: 'orchard@example.com', listId: 'pruning' })
+        records.removeAccount('orchard@example.com')
+        expect(records.defaultTaskList()).toBeNull()
+        records.setDefaultTaskList({ account: 'gardener@example.com', listId: 'jobs' })
+        records.setDefaultTaskList(null)
+        expect(records.defaultTaskList()).toBeNull()
+    })
+
     it('reads past records of a shape it does not know, as another release might have written them', () => {
         const person = memoryPersonStorage()
         person.set('accounts', [{ email: 'gardener@example.com' }, account('orchard@example.com'), 'beans'])
         person.set('calendars', { 'orchard@example.com': { trees: true, beds: 'yes' }, broken: 3 })
         person.set('default-calendar', { account: 1 })
+        person.set('default-task-list', { account: 'orchard@example.com', listId: 7 })
         const records = createRecords(person, memoryStorage())
         expect(records.accounts().map((kept) => kept.email)).toEqual(['orchard@example.com'])
         expect(records.choices()).toEqual({ 'orchard@example.com': { trees: true } })
         expect(records.defaultCalendar()).toBeNull()
+        expect(records.defaultTaskList()).toBeNull()
     })
 
     it('keeps the view last picked on this device only, and hears changes to the person’s records', () => {

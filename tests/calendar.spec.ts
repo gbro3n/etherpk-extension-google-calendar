@@ -72,7 +72,10 @@ async function seedGraph(page: Page, id: string, journals: Record<string, string
 }
 
 /** The person's settings and the extension's records, as another device would have synced them. */
-async function seedPerson(page: Page, { clientSet = true, accounts = [GARDENER], journal = true, journalTasks = true, openTasks = true, scopes = 'openid email' } = {}) {
+async function seedPerson(
+    page: Page,
+    { clientSet = true, accounts = [GARDENER], journal = true, journalTasks = true, openTasks = true, scopes = 'openid email', records = {} as Record<string, unknown> } = {},
+) {
     const setting = (value: string) => ({ value, changedAt: 1 })
     const settings: Record<string, { value: string; changedAt: number }> = {}
     if (clientSet) {
@@ -85,6 +88,8 @@ async function seedPerson(page: Page, { clientSet = true, accounts = [GARDENER],
     }
     if (!journalTasks) settings['extension.google-calendar.journal-tasks'] = setting('false')
     if (!openTasks) settings['extension.google-calendar.journal-open-tasks'] = setting('false')
+    // The extension's own records, such as where new events and tasks go.
+    for (const [key, value] of Object.entries(records)) settings[`extension-data.google-calendar.${key}`] = setting(JSON.stringify(value))
     await page.addInitScript((stored) => {
         if (!sessionStorage.getItem('seeded')) {
             localStorage.setItem('etherpk:person-settings', JSON.stringify({ settings: stored, pending: [] }))
@@ -329,6 +334,77 @@ test.describe('the Journal Panel', () => {
         await page.getByTestId('gc-details-open-calendar').click()
         await expect(page.getByTestId('gc-view')).toBeVisible()
         await expect(page.getByTestId('gc-title')).toContainText('9')
+    })
+
+    test('starts a new event in the calendar chosen for new events, and in the main calendar once that one is gone', async ({ page }) => {
+        const google = gardenGoogle()
+        await openGraph(page, google)
+        const view = await openCalendar(page)
+        const picker = view.getByTestId('gc-default-calendar')
+        await expect(picker).toHaveValue(`${GARDENER}|${GARDENER}`, { timeout: 15_000 })
+        // A menu the extension draws in the theme's colours, not the system's list.
+        expect(await picker.evaluate((select) => getComputedStyle(select).appearance)).toBe('base-select')
+        await picker.click()
+        await view.getByRole('option', { name: 'Kitchen' }).click()
+        await expect(picker).toHaveValue(`${GARDENER}|kitchen@group.calendar.google.com`)
+        await page.evaluate(() => (window as unknown as { __etherpkLayout: { openView(view: unknown): void } }).__etherpkLayout.openView({ kind: 'document', target: '2026-10-12' }))
+        const panel = journalTab(page, TODAY).getByTestId('gc-journal-panel')
+        await panel.getByTestId('gc-panel-add').click()
+        const editor = page.getByTestId('gc-editor')
+        await expect(editor.getByTestId('gc-editor-calendar')).toHaveValue(`${GARDENER}|kitchen@group.calendar.google.com`)
+        await editor.getByRole('button', { name: 'Cancel' }).click()
+
+        // Deleted in Google: the calendar is not in the account's list when it is next read.
+        google.accounts.get(GARDENER)!.calendars.splice(1, 1)
+        await page.reload()
+        await expect(page.locator('[data-testid="document-view"] .cm-content').first()).toBeVisible({ timeout: 30_000 })
+        await page.evaluate(() => (window as unknown as { __etherpkLayout: { openView(view: unknown): void } }).__etherpkLayout.openView({ kind: 'document', target: '2026-10-12' }))
+        await expect(journalTab(page, TODAY).getByTestId('gc-panel-event').first()).toBeVisible({ timeout: 15_000 })
+        await journalTab(page, TODAY).getByTestId('gc-panel-add').click()
+        await expect(page.getByTestId('gc-editor').getByTestId('gc-editor-calendar')).toHaveValue(`${GARDENER}|${GARDENER}`)
+    })
+
+    test("draws its actions as EtherPK's own small buttons, about as tall as their heading, in either theme", async ({ page }) => {
+        const google = gardenGoogle()
+        google.accounts.get(GARDENER)!.tasks = { list1: { title: 'Garden jobs', items: [] } }
+        await openGraph(page, google, { scopes: 'openid email https://www.googleapis.com/auth/tasks' })
+        const panel = journalTab(page, TODAY).getByTestId('gc-journal-panel')
+        await expect(panel.getByTestId('gc-panel-event').first()).toBeVisible({ timeout: 15_000 })
+        const rows = [
+            { head: panel.getByTestId('gc-panel-head'), buttons: ['gc-panel-add', 'gc-panel-open'] },
+            { head: panel.getByTestId('gc-panel-tasks-head'), buttons: ['gc-panel-add-task'] },
+        ]
+        const looks = async () => {
+            const out: string[] = []
+            for (const { head, buttons } of rows) {
+                const title = await head.getByRole('heading').boundingBox()
+                for (const id of buttons) {
+                    const button = head.getByTestId(id)
+                    const box = (await button.boundingBox())!
+                    expect(box.height, id).toBeLessThanOrEqual(title!.height + 4)
+                    expect(Math.abs(box.y + box.height / 2 - (title!.y + title!.height / 2)), id).toBeLessThan(2)
+                    // The same classes on a button in the Client's own page, outside the panel's shadow root.
+                    const style = await button.evaluate((inPanel) => {
+                        const inPage = document.createElement('button')
+                        inPage.className = 'gk-button gk-button--small'
+                        document.body.append(inPage)
+                        const read = (element: Element) => {
+                            const own = getComputedStyle(element)
+                            return [own.borderTopColor, own.borderRadius, own.color, own.fontSize, own.fontWeight, own.paddingLeft, own.textDecorationLine].join(' ')
+                        }
+                        const both = { panel: read(inPanel), page: read(inPage) }
+                        inPage.remove()
+                        return both
+                    })
+                    expect(style.panel, id).toBe(style.page)
+                    out.push(style.panel)
+                }
+            }
+            return out
+        }
+        const light = await looks()
+        await page.getByRole('radio', { name: 'Dark' }).click()
+        await expect.poll(async () => (await looks())[0]).not.toBe(light[0])
     })
 
     test('says where to set up before an account is connected', async ({ page }) => {
@@ -659,11 +735,72 @@ test.describe('Google Tasks', () => {
 
         await view.getByTestId('gc-add-task').click()
         const editor = page.getByTestId('gc-task-editor')
+        // A new task has no due date until the person gives it one.
+        await expect(editor.getByTestId('gc-task-due')).toHaveValue('')
         await editor.getByTestId('gc-task-title').fill('Order seed potatoes')
         await editor.getByTestId('gc-task-due').fill('2026-10-14')
         await editor.getByTestId('gc-task-save').click()
         await expect.poll(() => google.sent('TASK POST').map((write) => write.body)).toEqual([{ title: 'Order seed potatoes', due: '2026-10-14T00:00:00.000Z' }])
         await expect(view.locator('.gc-task', { hasText: 'Order seed potatoes' })).toBeVisible()
+    })
+
+    test("adds a task from the journal entry, with no due date, in the list chosen for new tasks", async ({ page }) => {
+        const google = withTasks()
+        await openGraph(page, google, { scopes: `openid email ${TASKS}`, records: { 'default-task-list': { account: GARDENER, listId: 'list2' } } })
+        const panel = journalTab(page, TODAY).getByTestId('gc-journal-panel')
+        await expect(panel.getByTestId('gc-panel-task-list')).toHaveCount(1, { timeout: 15_000 })
+        // On the Tasks heading, not the Calendar one.
+        await expect(panel.getByTestId('gc-panel-head').getByTestId('gc-panel-add-task')).toHaveCount(0)
+        await panel.getByTestId('gc-panel-tasks-head').getByTestId('gc-panel-add-task').click()
+        const editor = page.getByTestId('gc-task-editor')
+        await expect(editor.getByTestId('gc-task-due')).toHaveValue('')
+        await expect(editor.getByTestId('gc-task-list')).toHaveValue(`${GARDENER}|list2`)
+        await expect(editor.getByTestId('gc-task-title')).toBeFocused()
+        await editor.getByTestId('gc-task-title').fill('Label the jam')
+        await editor.getByTestId('gc-task-title').press('Enter')
+        await expect.poll(() => google.sent('TASK POST').map((write) => [write.url.pathname, write.body])).toEqual([['/tasks/v1/lists/list2/tasks', { title: 'Label the jam' }]])
+        await expect(editor).toHaveCount(0)
+        // Not due, so among today's open tasks, under its list.
+        await expect(panel.getByTestId('gc-panel-task-list').filter({ hasText: 'Kitchen jobs' }).getByTestId('gc-panel-task')).toHaveText([/^Label the jam\s*$/])
+    })
+
+    test('offers Add task beneath a day with no tasks while the events are off', async ({ page }) => {
+        const google = withTasks()
+        await openGraph(page, google, { scopes: `openid email ${TASKS}`, journal: false, openTasks: false }, { [`${TODAY}.md`]: '- plant the garlic\n', '2026-10-10.md': '- rest\n' })
+        await page.evaluate(() => (window as unknown as { __etherpkLayout: { openView(view: unknown): void } }).__etherpkLayout.openView({ kind: 'document', target: '2026-10-10' }))
+        const panel = journalTab(page, '2026-10-10').getByTestId('gc-journal-panel')
+        await expect(panel.getByTestId('gc-panel-tasks-empty')).toHaveText('No tasks due', { timeout: 15_000 })
+        await expect(panel.getByTestId('gc-panel-add')).toHaveCount(0)
+        await panel.getByTestId('gc-panel-add-task').click()
+        await expect(page.getByTestId('gc-task-editor').getByTestId('gc-task-title')).toBeFocused()
+        await expect(page.getByTestId('gc-task-editor').getByTestId('gc-task-due')).toHaveValue('')
+    })
+
+    test('the calendar list sets where new tasks go, and a list deleted in Google gives way to the first list', async ({ page }) => {
+        const google = withTasks()
+        await openGraph(page, google, { scopes: `openid email ${TASKS}` })
+        const view = await openCalendar(page)
+        const picker = view.getByTestId('gc-default-task-list')
+        await expect(picker).toHaveValue(`${GARDENER}|list1`, { timeout: 15_000 })
+        // Below where new events go.
+        const [events, tasks] = await Promise.all([view.getByTestId('gc-default-calendar').boundingBox(), picker.boundingBox()])
+        expect(tasks!.y).toBeGreaterThan(events!.y)
+        expect(await picker.evaluate((select) => getComputedStyle(select).appearance)).toBe('base-select')
+        await picker.click()
+        await view.getByRole('option', { name: 'Kitchen jobs' }).click()
+        await expect(picker).toHaveValue(`${GARDENER}|list2`)
+        await view.getByTestId('gc-add-task').click()
+        const editor = page.getByTestId('gc-task-editor')
+        await expect(editor.getByTestId('gc-task-list')).toHaveValue(`${GARDENER}|list2`)
+        await editor.getByRole('button', { name: 'Cancel' }).click()
+
+        delete google.accounts.get(GARDENER)!.tasks!.list2
+        await page.reload()
+        await expect(page.getByRole('button', { name: 'Calendar Events' }).first()).toBeVisible({ timeout: 30_000 })
+        const again = await openCalendar(page)
+        await expect(again.getByTestId('gc-default-task-list')).toHaveValue(`${GARDENER}|list1`, { timeout: 15_000 })
+        await again.getByTestId('gc-add-task').click()
+        await expect(page.getByTestId('gc-task-editor').getByTestId('gc-task-list')).toHaveValue(`${GARDENER}|list1`)
     })
 
     test('says why the task lists could not be read, and Retry reads them', async ({ page }) => {

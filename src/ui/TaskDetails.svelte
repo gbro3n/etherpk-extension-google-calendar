@@ -62,13 +62,13 @@
     {@attach popover(onclose)}
 >
     <div class="gc-task-details__actions">
-        <button type="button" class="gc-icon-button" aria-label="Edit task" title="Edit task" data-testid="gc-task-edit" onclick={onedit}>
+        <button type="button" class="gk-icon-button" aria-label="Edit task" title="Edit task" data-testid="gc-task-edit" onclick={onedit}>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10.5 2.5l3 3L6 13H3v-3z" /></svg>
         </button>
-        <button type="button" class="gc-icon-button" aria-label="Delete task" title="Delete task" data-testid="gc-task-delete" onclick={ondelete}>
+        <button type="button" class="gk-icon-button" aria-label="Delete task" title="Delete task" data-testid="gc-task-delete" onclick={ondelete}>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.75 9h5.5l.75-9" /></svg>
         </button>
-        <button type="button" class="gc-icon-button" aria-label="Close" data-autofocus onclick={onclose}>
+        <button type="button" class="gk-icon-button" aria-label="Close" data-autofocus onclick={onclose}>
             <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
         </button>
     </div>
@@ -77,8 +77,8 @@
     <p class="gc-muted">{task.list.title}{#if app.store.accounts.length > 1}, {task.account}{/if}</p>
     {#if task.task.notes}<p class="gc-task-details__notes">{task.task.notes}</p>{/if}
     <div class="gc-task-details__footer">
-        <button type="button" class="gc-button" data-testid="gc-task-toggle" disabled={busy} onclick={() => void toggle()}>{task.done ? 'Mark not done' : 'Mark complete'}</button>
-        {#if safeUrl(task.task.webViewLink)}<a class="gc-link" href={safeUrl(task.task.webViewLink)} target="_blank" rel="noopener noreferrer">Open in Google Tasks<OpensInNewTab /></a>{/if}
+        <button type="button" class="gk-button" data-testid="gc-task-toggle" disabled={busy} onclick={() => void toggle()}>{task.done ? 'Mark not done' : 'Mark complete'}</button>
+        {#if safeUrl(task.task.webViewLink)}<a class="gk-link" href={safeUrl(task.task.webViewLink)} target="_blank" rel="noopener noreferrer">Open in Google Tasks<OpensInNewTab /></a>{/if}
     </div>
 </div>
 

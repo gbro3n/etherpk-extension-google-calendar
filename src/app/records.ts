@@ -9,6 +9,7 @@
  * - `default-calendar`: where a new event goes unless they pick another calendar.
  * - `task-lists`: the Google Tasks lists the person ticked or unticked here, by account and list. A
  *   list they never touched shows.
+ * - `default-task-list`: where a new task goes unless they pick another list.
  *
  * And on this device only (`context.storage`), the view last picked.
  *
@@ -31,6 +32,12 @@ export interface AccountRecord {
 export interface CalendarRef {
     account: string
     calendarId: string
+}
+
+/** A Google Tasks list, by the account it belongs to and its id. */
+export interface TaskListRef {
+    account: string
+    listId: string
 }
 
 /** Calendar choices: account → calendar id → shown. */
@@ -58,7 +65,10 @@ export interface Records {
     setDefaultCalendar(ref: CalendarRef | null): void
     /** Task list choices: account → list id → shown. A list not named shows. */
     taskListChoices(): CalendarChoices
-    chooseTaskList(ref: { account: string; listId: string }, shown: boolean): void
+    chooseTaskList(ref: TaskListRef, shown: boolean): void
+    /** The list new tasks go to, as the person chose it. It may since have been deleted in Google. */
+    defaultTaskList(): TaskListRef | null
+    setDefaultTaskList(ref: TaskListRef | null): void
     lastView(): ViewName | null
     setLastView(view: ViewName): void
     /** Hear a change to any of the person's records, here or from another device. */
@@ -102,6 +112,7 @@ export function createRecords(person: ExtensionPersonStorage, device: ExtensionS
             const { [email]: _goneLists, ...otherLists } = readChoices(person.get<unknown>('task-lists'))
             person.set('task-lists', otherLists)
             if (this.defaultCalendar()?.account === email) person.remove('default-calendar')
+            if (this.defaultTaskList()?.account === email) person.remove('default-task-list')
         },
         choices,
         choose(ref, shown) {
@@ -122,6 +133,14 @@ export function createRecords(person: ExtensionPersonStorage, device: ExtensionS
         chooseTaskList(ref, shown) {
             const all = readChoices(person.get<unknown>('task-lists'))
             person.set('task-lists', { ...all, [ref.account]: { ...all[ref.account], [ref.listId]: shown } })
+        },
+        defaultTaskList() {
+            const value = person.get<unknown>('default-task-list')
+            return isObject(value) && typeof value.account === 'string' && typeof value.listId === 'string' ? { account: value.account, listId: value.listId } : null
+        },
+        setDefaultTaskList(ref) {
+            if (ref) person.set('default-task-list', ref)
+            else person.remove('default-task-list')
         },
         lastView() {
             const value = device.get<unknown>('view')

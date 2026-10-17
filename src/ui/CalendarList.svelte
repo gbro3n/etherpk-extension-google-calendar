@@ -10,7 +10,8 @@
      *
      * Below the accounts, between rules, signing in and out: each account's Disconnect, which asks
      * first because it ends the sign-in at Google on every device, and Add account. Then the calendar
-     * new events go to.
+     * new events go to and the task list new tasks go to, each the first one Google gives (the main
+     * calendar, for events) until the person picks another, and again once the one picked is gone.
      */
     import type { CalendarApp } from '../app/app.svelte'
     import type { AccountView } from '../app/calendar-store.svelte'
@@ -74,6 +75,18 @@
         return first ? `${first.account}|${first.calendar.id}` : ''
     })
 
+    /** The task lists a new task can go in, by account, and the one it starts in. */
+    const taskListOptions = $derived.by(() => {
+        void store.version
+        void app.tasks.lists
+        return app.tasks.listOptions()
+    })
+    const taskListAccounts = $derived([...new Set(taskListOptions.map((option) => option.email))])
+    const defaultTaskList = $derived.by(() => {
+        void store.version
+        return taskListOptions.length > 0 ? (app.tasks.defaultList()?.key ?? '') : ''
+    })
+
     async function disconnect(email: string) {
         disconnecting = email
         problem = null
@@ -95,11 +108,11 @@
             {#if account.status === 'loading' && account.calendars.length === 0}
                 <p class="gc-muted" role="status">Loading calendars…</p>
             {:else if account.status === 'reconnect'}
-                <p class="gc-error" role="alert">{account.message}</p>
+                <p class="gk-error" role="alert">{account.message}</p>
                 <ConnectButton {app} email={account.email} />
             {:else if account.status === 'error'}
-                <p class="gc-error" role="alert">{account.message}</p>
-                <button type="button" class="gc-button" onclick={() => void store.refreshAccounts()}>Retry</button>
+                <p class="gk-error" role="alert">{account.message}</p>
+                <button type="button" class="gk-button" onclick={() => void store.refreshAccounts()}>Retry</button>
             {/if}
             <ul class="gc-list__calendars">
                 {#each account.calendars.filter((calendar) => calendar.accessRole !== 'freeBusyReader') as calendar (calendar.id)}
@@ -127,8 +140,8 @@
                         <p class="gc-muted">Connect again to show Google Tasks.</p>
                         <ConnectButton {app} email={account.email} label="Connect again" />
                     {:else if tasks.problem}
-                        <p class="gc-error" role="alert">{tasks.problem}</p>
-                        <button type="button" class="gc-button" onclick={() => void app.tasks.refreshLists()}>Retry</button>
+                        <p class="gk-error" role="alert">{tasks.problem}</p>
+                        <button type="button" class="gk-button" onclick={() => void app.tasks.refreshLists()}>Retry</button>
                     {:else if tasks.lists.length === 0}
                         <p class="gc-muted">No task lists yet.</p>
                     {:else}
@@ -150,7 +163,7 @@
                         </ul>
                     {/if}
                     {#if tasks.allowed}
-                        <a class="gc-link gc-list__open-tasks" href={tasksWebUrl(account.email)} target="_blank" rel="noopener noreferrer" data-testid="gc-open-tasks">Open in Google Tasks<OpensInNewTab /></a>
+                        <a class="gk-link gc-list__open-tasks" href={tasksWebUrl(account.email)} target="_blank" rel="noopener noreferrer" data-testid="gc-open-tasks">Open in Google Tasks<OpensInNewTab /></a>
                     {/if}
                 </div>
             {/if}
@@ -167,12 +180,12 @@
                             <div class="gc-list__confirm" role="group" aria-label="Disconnect {account.email}">
                                 <p>Disconnect {account.email}? Its sign-in ends at Google, on every device of yours.</p>
                                 <div class="gc-list__confirm-actions">
-                                    <button type="button" class="gc-button gc-button--danger" data-testid="gc-disconnect-confirm" disabled={disconnecting !== null} onclick={() => void disconnect(account.email)}
+                                    <button type="button" class="gk-button gk-button--danger" data-testid="gc-disconnect-confirm" disabled={disconnecting !== null} onclick={() => void disconnect(account.email)}
                                         >{disconnecting === account.email ? 'Disconnecting…' : 'Disconnect'}</button
                                     >
                                     <button
                                         type="button"
-                                        class="gc-button"
+                                        class="gk-button"
                                         {@attach focusOnShow(true)}
                                         onclick={() => {
                                             refocus = account.email
@@ -186,7 +199,7 @@
                                 <span class="gc-list__name gc-muted" title={account.email}>{account.email}</span>
                                 <button
                                     type="button"
-                                    class="gc-link"
+                                    class="gk-link"
                                     data-testid="gc-disconnect"
                                     aria-label="Disconnect {account.email}"
                                     {@attach focusOnShow(refocus === account.email)}
@@ -201,16 +214,16 @@
                 {/each}
             </ul>
         {/if}
-        {#if problem}<p class="gc-error" role="alert">{problem}</p>{/if}
+        {#if problem}<p class="gk-error" role="alert">{problem}</p>{/if}
         <ConnectButton {app} label="Add account" />
     </section>
     <hr class="gc-list__rule" />
 
     {#if writable.length > 0}
-        <label class="gc-field">
-            <span>New events go to</span>
+        <label class="gk-field">
+            <span class="gk-label">New events go to</span>
             <select
-                class="gc-select"
+                class="gk-select"
                 value={defaultCalendar}
                 data-testid="gc-default-calendar"
                 onchange={(event) => {
@@ -222,6 +235,28 @@
                     <optgroup label={account.email}>
                         {#each writable.filter((option) => option.account === account.email) as option (option.calendar.id)}
                             <option value={`${option.account}|${option.calendar.id}`}>{option.calendar.summaryOverride || option.calendar.summary}</option>
+                        {/each}
+                    </optgroup>
+                {/each}
+            </select>
+        </label>
+    {/if}
+    {#if taskListOptions.length > 0}
+        <label class="gk-field">
+            <span class="gk-label">New tasks go to</span>
+            <select
+                class="gk-select"
+                value={defaultTaskList}
+                data-testid="gc-default-task-list"
+                onchange={(event) => {
+                    const chosen = taskListOptions.find((option) => option.key === event.currentTarget.value)
+                    if (chosen) app.records.setDefaultTaskList({ account: chosen.email, listId: chosen.list.id })
+                }}
+            >
+                {#each taskListAccounts as email (email)}
+                    <optgroup label={email}>
+                        {#each taskListOptions.filter((option) => option.email === email) as option (option.key)}
+                            <option value={option.key}>{option.list.title}</option>
                         {/each}
                     </optgroup>
                 {/each}
@@ -304,7 +339,7 @@
     .gc-list__signed-in-row .gc-list__name {
         min-width: 0;
     }
-    .gc-list__signed-in-row .gc-link {
+    .gc-list__signed-in-row .gk-link {
         flex: none;
     }
     .gc-list__open-tasks {

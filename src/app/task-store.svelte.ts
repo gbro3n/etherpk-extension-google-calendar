@@ -37,12 +37,22 @@ export interface ShownTask {
 /** A task with a due date, as the calendar and each day's panel show it on that day. */
 export type DueTask = ShownTask & { day: string }
 
+/** A task list a new task can go in, with the key the list pickers use for it. */
+export interface ListOption {
+    /** `<account>|<list id>`. */
+    key: string
+    email: string
+    list: TaskList
+}
+
 type ListedTask = Task & { listId: string }
 
 /** One read of an account's tasks (a month's due tasks, or every open task), as last fetched. */
 interface Held {
     tasks: ListedTask[]
     fetchedAt: number
+    /** Whether a read has ever succeeded, so `tasks` says what Google holds. `fetchedAt` is reset to read again. */
+    read: boolean
     pending: Promise<void> | null
     error: GoogleError | null
 }
@@ -121,6 +131,25 @@ export class TaskStore {
         return { allowed, needConsent }
     }
 
+    /**
+     * Every task list a new task can go in: those read so far of each account whose sign-in allows
+     * Tasks, account by account, each account's in Google's order.
+     */
+    listOptions(): ListOption[] {
+        return this.accounts().allowed.flatMap((email) => (this.lists[email] ?? []).map((list) => ({ key: `${email}|${list.id}`, email, list })))
+    }
+
+    /**
+     * The list a new task starts in: the one the person chose for new tasks while Google still has
+     * it and its account allows Tasks, else the first list Google gave for the first account. Null
+     * while no list has been read.
+     */
+    defaultList(): ListOption | null {
+        const options = this.listOptions()
+        const chosen = this.#records.defaultTaskList()
+        return (chosen && options.find((option) => option.email === chosen.account && option.list.id === chosen.listId)) || options[0] || null
+    }
+
     /** An account's task lists, read from Google when not yet read. Throws, saying why, when Google refuses. */
     async loadLists(email: string): Promise<TaskList[]> {
         try {
@@ -175,7 +204,7 @@ export class TaskStore {
     }
 
     #fetch(key: string, email: string, filter: TaskFilter): Promise<void> {
-        const held: Held = this.#held.get(key) ?? { tasks: [], fetchedAt: 0, pending: null, error: null }
+        const held: Held = this.#held.get(key) ?? { tasks: [], fetchedAt: 0, read: false, pending: null, error: null }
         const pending = (async () => {
             const client = this.#calendars.client(email)
             if (!client) return
@@ -184,6 +213,7 @@ export class TaskStore {
                 const found = await Promise.all(lists.map((list) => listTasks(client, list.id, filter).then((tasks) => tasks.map((task) => ({ ...task, listId: list.id })))))
                 held.tasks = found.flat()
                 held.fetchedAt = this.#now()
+                held.read = true
                 held.error = null
             } catch (error) {
                 held.error = error instanceof GoogleError ? error : new GoogleError('Google Tasks could not be reached.', { status: 0, kind: 'offline' })
@@ -247,6 +277,12 @@ export class TaskStore {
             out.set(key, { ...shown, done: shown.task.status === 'completed' })
         }
         return [...out.values()]
+    }
+
+    /** Whether the tasks due in the range have been read from Google, for every account that allows Tasks. */
+    read(start: Date, end: Date): boolean {
+        void this.version
+        return this.accounts().allowed.every((email) => monthsOf(start, end).every((month) => this.#held.get(`${email}|${month.key}`)?.read === true))
     }
 
     /** The first problem a range met, in words for the person. */

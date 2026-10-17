@@ -18,13 +18,13 @@
                 {#each pending.choice.options as option, index (index)}
                     <button
                         type="button"
-                        class={['gc-button', option.primary && 'gc-button--primary']}
+                        class={['gk-button', option.primary && 'gk-button--primary']}
                         data-autofocus={option.primary || undefined}
                         data-testid="gc-choice-option"
                         onclick={() => pending.answer(option.value)}>{option.label}</button
                     >
                 {/each}
-                <button type="button" class="gc-button" data-testid="gc-choice-cancel" onclick={() => pending.answer(null)}
+                <button type="button" class="gk-button" data-testid="gc-choice-cancel" onclick={() => pending.answer(null)}
                     >{pending.choice.cancelLabel ?? 'Cancel'}</button
                 >
             </div>

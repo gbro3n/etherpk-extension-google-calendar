@@ -59,26 +59,26 @@
 
 <div class="gc-rich">
     <div class="gc-rich__bar" role="toolbar" aria-label="Formatting">
-        <button type="button" class="gc-icon-button" aria-label="Bold" title="Bold" onmousedown={(event) => event.preventDefault()} onclick={() => command('bold')}><b>B</b></button>
-        <button type="button" class="gc-icon-button" aria-label="Italic" title="Italic" onmousedown={(event) => event.preventDefault()} onclick={() => command('italic')}><i>I</i></button>
-        <button type="button" class="gc-icon-button" aria-label="Underline" title="Underline" onmousedown={(event) => event.preventDefault()} onclick={() => command('underline')}><u>U</u></button>
-        <button type="button" class="gc-icon-button" aria-label="Bulleted list" title="Bulleted list" onmousedown={(event) => event.preventDefault()} onclick={() => command('insertUnorderedList')}>
+        <button type="button" class="gk-icon-button" aria-label="Bold" title="Bold" onmousedown={(event) => event.preventDefault()} onclick={() => command('bold')}><b>B</b></button>
+        <button type="button" class="gk-icon-button" aria-label="Italic" title="Italic" onmousedown={(event) => event.preventDefault()} onclick={() => command('italic')}><i>I</i></button>
+        <button type="button" class="gk-icon-button" aria-label="Underline" title="Underline" onmousedown={(event) => event.preventDefault()} onclick={() => command('underline')}><u>U</u></button>
+        <button type="button" class="gk-icon-button" aria-label="Bulleted list" title="Bulleted list" onmousedown={(event) => event.preventDefault()} onclick={() => command('insertUnorderedList')}>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8" /><circle cx="2.5" cy="4" r=".75" /><circle cx="2.5" cy="8" r=".75" /><circle cx="2.5" cy="12" r=".75" /></svg>
         </button>
-        <button type="button" class="gc-icon-button" aria-label="Numbered list" title="Numbered list" onmousedown={(event) => event.preventDefault()} onclick={() => command('insertOrderedList')}>
+        <button type="button" class="gk-icon-button" aria-label="Numbered list" title="Numbered list" onmousedown={(event) => event.preventDefault()} onclick={() => command('insertOrderedList')}>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h8M2 3l1-.5V5.5M1.75 10h1.5L1.75 12.5h1.75" /></svg>
         </button>
-        <button type="button" class="gc-icon-button" aria-label="Link" title="Link" onmousedown={(event) => event.preventDefault()} onclick={startLink}>
+        <button type="button" class="gk-icon-button" aria-label="Link" title="Link" onmousedown={(event) => event.preventDefault()} onclick={startLink}>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 0 1 4.5 9l1-1" /></svg>
         </button>
-        <button type="button" class="gc-icon-button" aria-label="Remove formatting" title="Remove formatting" onmousedown={(event) => event.preventDefault()} onclick={() => command('removeFormat')}>
+        <button type="button" class="gk-icon-button" aria-label="Remove formatting" title="Remove formatting" onmousedown={(event) => event.preventDefault()} onclick={() => command('removeFormat')}>
             <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 3h8M8 3l-2 10M3 13l10-10" /></svg>
         </button>
     </div>
     {#if linkOpen}
         <div class="gc-rich__link">
             <input
-                class="gc-input"
+                class="gk-input"
                 aria-label="Link address"
                 bind:value={linkValue}
                 aria-invalid={linkError !== null}
@@ -93,9 +93,9 @@
                     }
                 }}
             />
-            <button type="button" class="gc-button" onclick={addLink}>Add link</button>
-            <button type="button" class="gc-button" onclick={() => (linkOpen = false)}>Cancel</button>
-            {#if linkError}<span class="gc-error">{linkError}</span>{/if}
+            <button type="button" class="gk-button" onclick={addLink}>Add link</button>
+            <button type="button" class="gk-button" onclick={() => (linkOpen = false)}>Cancel</button>
+            {#if linkError}<span class="gk-error">{linkError}</span>{/if}
         </div>
     {/if}
     <div

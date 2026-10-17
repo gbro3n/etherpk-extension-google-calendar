@@ -54,9 +54,9 @@
     >
         <span>{offer.text}</span>
         {#if offer.restore}
-            <button type="button" class="gc-button" data-testid="gc-undo-button" disabled={undoing} onclick={() => void undo()}>{undoing ? 'Putting it back…' : 'Undo'}</button>
+            <button type="button" class="gk-button" data-testid="gc-undo-button" disabled={undoing} onclick={() => void undo()}>{undoing ? 'Putting it back…' : 'Undo'}</button>
         {/if}
-        <button type="button" class="gc-icon-button" aria-label="Close" onclick={ondone}>
+        <button type="button" class="gk-icon-button" aria-label="Close" onclick={ondone}>
             <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
         </button>
     </div>

@@ -47,8 +47,8 @@
 <div class="gc-repeat" data-testid="gc-repeat-editor">
     <label class="gc-repeat__row">
         <span>Every</span>
-        <input class="gc-input gc-repeat__number" type="number" min="1" max="999" value={rule.interval} oninput={(event) => set({ interval: Math.max(1, Number(event.currentTarget.value) || 1) })} />
-        <select class="gc-select" aria-label="Unit" value={rule.freq} onchange={(event) => setFreq(event.currentTarget.value as RepeatRule['freq'])}>
+        <input class="gk-input gc-repeat__number" type="number" min="1" max="999" value={rule.interval} oninput={(event) => set({ interval: Math.max(1, Number(event.currentTarget.value) || 1) })} />
+        <select class="gk-select" aria-label="Unit" value={rule.freq} onchange={(event) => setFreq(event.currentTarget.value as RepeatRule['freq'])}>
             <option value="DAILY">{rule.interval === 1 ? 'day' : 'days'}</option>
             <option value="WEEKLY">{rule.interval === 1 ? 'week' : 'weeks'}</option>
             <option value="MONTHLY">{rule.interval === 1 ? 'month' : 'months'}</option>
@@ -68,7 +68,7 @@
         </fieldset>
     {:else if rule.freq === 'MONTHLY'}
         <select
-            class="gc-select"
+            class="gk-select"
             aria-label="On"
             value={rule.byDay ? 'weekday' : 'date'}
             onchange={(event) => {
@@ -87,7 +87,7 @@
         <label class="gc-repeat__row">
             <input type="radio" name="gc-ends" value="on" checked={ends === 'on'} onchange={() => setEnds('on')} /> On
             <input
-                class="gc-input"
+                class="gk-input"
                 type="date"
                 aria-label="End date"
                 disabled={ends !== 'on'}
@@ -98,7 +98,7 @@
         <label class="gc-repeat__row">
             <input type="radio" name="gc-ends" value="after" checked={ends === 'after'} onchange={() => setEnds('after')} /> After
             <input
-                class="gc-input gc-repeat__number"
+                class="gk-input gc-repeat__number"
                 type="number"
                 min="1"
                 max="730"

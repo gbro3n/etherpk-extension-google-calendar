@@ -121,7 +121,7 @@
     >
         <div class="gc-year__popup-head">
             <h4>{day.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</h4>
-            <button type="button" class="gc-icon-button" aria-label="Close" data-autofocus onclick={() => (opened = null)}>
+            <button type="button" class="gk-icon-button" aria-label="Close" data-autofocus onclick={() => (opened = null)}>
                 <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
             </button>
         </div>
@@ -141,8 +141,8 @@
             </ul>
         {/if}
         <div class="gc-year__popup-actions">
-            <button type="button" class="gc-button" data-testid="gc-year-go" onclick={() => ongoto(day)}>Go to day</button>
-            <button type="button" class="gc-button" data-testid="gc-year-journal" onclick={() => app.openDay(isoDay(day))}>Open journal entry</button>
+            <button type="button" class="gk-button" data-testid="gc-year-go" onclick={() => ongoto(day)}>Go to day</button>
+            <button type="button" class="gk-button" data-testid="gc-year-journal" onclick={() => app.openDay(isoDay(day))}>Open journal entry</button>
         </div>
     </div>
 {/if}

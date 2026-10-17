@@ -114,14 +114,14 @@
 >
     <div class="gc-details__actions">
         {#if event.editable}
-            <button type="button" class="gc-icon-button" aria-label="Edit event" title="Edit event" data-testid="gc-details-edit" onclick={onedit}>
+            <button type="button" class="gk-icon-button" aria-label="Edit event" title="Edit event" data-testid="gc-details-edit" onclick={onedit}>
                 <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10.5 2.5l3 3L6 13H3v-3z" /></svg>
             </button>
-            <button type="button" class="gc-icon-button" aria-label="Delete event" title="Delete event" data-testid="gc-details-delete" onclick={ondelete}>
+            <button type="button" class="gk-icon-button" aria-label="Delete event" title="Delete event" data-testid="gc-details-delete" onclick={ondelete}>
                 <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.75 9h5.5l.75-9" /></svg>
             </button>
         {/if}
-        <button type="button" class="gc-icon-button" aria-label="Close" data-autofocus data-testid="gc-details-close" onclick={onclose}>
+        <button type="button" class="gk-icon-button" aria-label="Close" data-autofocus data-testid="gc-details-close" onclick={onclose}>
             <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
         </button>
     </div>
@@ -140,18 +140,18 @@
 
     {#if meet}
         <div class="gc-details__row">
-            <a class="gc-button gc-button--primary" href={meet.uri} target="_blank" rel="noopener noreferrer" data-testid="gc-details-meet">Join with Google Meet</a>
+            <a class="gk-button gk-button--primary" href={meet.uri} target="_blank" rel="noopener noreferrer" data-testid="gc-details-meet">Join with Google Meet</a>
             <span class="gc-muted gc-details__wrap">{meet.uri.replace(/^https:\/\//, '')}</span>
         </div>
         {#each phones as phone (phone.uri)}
-            <p class="gc-details__row gc-muted">Join by phone: <a class="gc-link" href={phone.uri}>{phone.label ?? phone.uri}</a>{#if phone.pin}, PIN {phone.pin}{/if}</p>
+            <p class="gc-details__row gc-muted">Join by phone: <a class="gk-link" href={phone.uri}>{phone.label ?? phone.uri}</a>{#if phone.pin}, PIN {phone.pin}{/if}</p>
         {/each}
     {/if}
 
     {#if event.event.location}
         <p class="gc-details__row">
             <span class="gc-details__wrap">{event.event.location}</span>
-            <a class="gc-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.event.location)}`} target="_blank" rel="noopener noreferrer">Map</a>
+            <a class="gk-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.event.location)}`} target="_blank" rel="noopener noreferrer">Map</a>
         </p>
     {/if}
 
@@ -177,7 +177,7 @@
             <h4>Attachments</h4>
             <ul class="gc-details__attachments">
                 {#each attachments as attachment (attachment.fileUrl)}
-                    <li><a class="gc-link" href={attachment.fileUrl} target="_blank" rel="noopener noreferrer">{attachment.title ?? attachment.fileUrl}</a></li>
+                    <li><a class="gk-link" href={attachment.fileUrl} target="_blank" rel="noopener noreferrer">{attachment.title ?? attachment.fileUrl}</a></li>
                 {/each}
             </ul>
         </div>
@@ -216,7 +216,7 @@
         <div class="gc-details__rsvp" role="group" aria-label="Going?">
             <span>Going?</span>
             {#each [['accepted', 'Yes'], ['declined', 'No'], ['tentative', 'Maybe']] as [value, label] (value)}
-                <button type="button" class="gc-button" aria-pressed={response === value} disabled={answering} data-testid="gc-rsvp-{value}" onclick={() => void answer(value as 'accepted' | 'declined' | 'tentative')}
+                <button type="button" class="gk-button" aria-pressed={response === value} disabled={answering} data-testid="gc-rsvp-{value}" onclick={() => void answer(value as 'accepted' | 'declined' | 'tentative')}
                     >{label}</button
                 >
             {/each}
@@ -225,11 +225,11 @@
 
     <div class="gc-details__footer">
         {#if googleLink}
-            <a class="gc-link" href={googleLink} target="_blank" rel="noopener noreferrer">Open in Google Calendar<OpensInNewTab /></a>
+            <a class="gk-link" href={googleLink} target="_blank" rel="noopener noreferrer">Open in Google Calendar<OpensInNewTab /></a>
         {/if}
-        <button type="button" class="gc-link" data-testid="gc-details-journal" onclick={() => (onopenday ? onopenday() : app.openDay(isoDay(event.span.start)))}>Open journal entry</button>
+        <button type="button" class="gk-link" data-testid="gc-details-journal" onclick={() => (onopenday ? onopenday() : app.openDay(isoDay(event.span.start)))}>Open journal entry</button>
         {#if showOpenCalendar}
-            <button type="button" class="gc-link" data-testid="gc-details-open-calendar" onclick={() => app.openCalendar(isoDay(event.span.start))}>Open in Calendar Events</button>
+            <button type="button" class="gk-link" data-testid="gc-details-open-calendar" onclick={() => app.openCalendar(isoDay(event.span.start))}>Open in Calendar Events</button>
         {/if}
     </div>
 </div>

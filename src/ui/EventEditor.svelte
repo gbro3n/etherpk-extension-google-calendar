@@ -461,32 +461,32 @@
     {#if draft}
         <form class="gc-editor" onsubmit={save} novalidate aria-labelledby={titleId} data-testid="gc-editor" {@attach saveOnModEnter}>
             <h2 id={titleId} class="gc-visually-hidden">{editing ? 'Edit event' : 'New event'}</h2>
-            <input class="gc-input gc-editor__title" placeholder="Add title" aria-label="Title" data-autofocus data-testid="gc-editor-title" bind:value={draft.summary} />
+            <input class="gk-input gc-editor__title" placeholder="Add title" aria-label="Title" data-autofocus data-testid="gc-editor-title" bind:value={draft.summary} />
 
-            {#if error}<p class="gc-error" role="alert" data-testid="gc-editor-error">{error}</p>{/if}
+            {#if error}<p class="gk-error" role="alert" data-testid="gc-editor-error">{error}</p>{/if}
 
             <fieldset class="gc-editor__when">
                 <legend class="gc-visually-hidden">When</legend>
                 <label class="gc-editor__inline"><input type="checkbox" bind:checked={draft.allDay} data-testid="gc-editor-all-day" /> All day</label>
                 <div class="gc-editor__times">
-                    <input class="gc-input" type="date" aria-label="Start date" bind:value={draft.startDate} data-testid="gc-editor-start-date" />
-                    {#if !draft.allDay}<input class="gc-input" type="time" aria-label="Start time" bind:value={draft.startTime} data-testid="gc-editor-start-time" />{/if}
+                    <input class="gk-input" type="date" aria-label="Start date" bind:value={draft.startDate} data-testid="gc-editor-start-date" />
+                    {#if !draft.allDay}<input class="gk-input" type="time" aria-label="Start time" bind:value={draft.startTime} data-testid="gc-editor-start-time" />{/if}
                     <span>to</span>
-                    {#if !draft.allDay}<input class="gc-input" type="time" aria-label="End time" bind:value={draft.endTime} data-testid="gc-editor-end-time" />{/if}
-                    <input class="gc-input" type="date" aria-label="End date" bind:value={draft.endDate} data-testid="gc-editor-end-date" />
+                    {#if !draft.allDay}<input class="gk-input" type="time" aria-label="End time" bind:value={draft.endTime} data-testid="gc-editor-end-time" />{/if}
+                    <input class="gk-input" type="date" aria-label="End date" bind:value={draft.endDate} data-testid="gc-editor-end-date" />
                 </div>
                 {#if !draft.allDay}
-                    <label class="gc-field">
-                        <span>Time zone</span>
-                        <select class="gc-select" bind:value={draft.timeZone}>
+                    <label class="gk-field">
+                        <span class="gk-label">Time zone</span>
+                        <select class="gk-select" bind:value={draft.timeZone}>
                             {#each zones as zone (zone)}<option value={zone}>{zone.replaceAll('_', ' ')}</option>{/each}
                         </select>
                     </label>
                 {/if}
-                <label class="gc-field">
-                    <span>Repeat</span>
+                <label class="gk-field">
+                    <span class="gk-label">Repeat</span>
                     <select
-                        class="gc-select"
+                        class="gk-select"
                         value={draft.repeat}
                         data-testid="gc-editor-repeat"
                         onchange={(event) => {
@@ -507,9 +507,9 @@
             </fieldset>
 
             <div class="gc-editor__grid">
-                <label class="gc-field">
-                    <span>Calendar</span>
-                    <select class="gc-select" bind:value={draft.calendarKey} data-testid="gc-editor-calendar">
+                <label class="gk-field">
+                    <span class="gk-label">Calendar</span>
+                    <select class="gk-select" bind:value={draft.calendarKey} data-testid="gc-editor-calendar">
                         {#each store.accounts.filter((account) => account.status === 'ready') as account (account.email)}
                             <optgroup label={account.email}>
                                 {#each writable.filter((option) => option.account === account.email) as option (option.key)}
@@ -520,16 +520,16 @@
                     </select>
                 </label>
                 {#if labels.length > 0}
-                    <label class="gc-field">
-                        <span>Label</span>
-                        <select class="gc-select" bind:value={draft.labelId}>
+                    <label class="gk-field">
+                        <span class="gk-label">Label</span>
+                        <select class="gk-select" bind:value={draft.labelId}>
                             <option value="">None</option>
                             {#each labels as label (label.id)}<option value={label.id}>{label.name || 'Unnamed label'}</option>{/each}
                         </select>
                     </label>
                 {:else}
-                    <fieldset class="gc-field gc-editor__colours">
-                        <legend>Colour</legend>
+                    <fieldset class="gk-field gc-editor__colours">
+                        <legend class="gk-label">Colour</legend>
                         <label class="gc-editor__colour" title="Calendar colour">
                             <input type="radio" name="gc-colour" value="" bind:group={draft.colorId} />
                             <span class="gc-swatch" style:background={chosen ? calendarColor(chosen.calendar) : undefined}></span>
@@ -545,9 +545,9 @@
                     </fieldset>
                 {/if}
                 {#if workspace}
-                    <label class="gc-field">
-                        <span>Type</span>
-                        <select class="gc-select" bind:value={draft.eventType}>
+                    <label class="gk-field">
+                        <span class="gk-label">Type</span>
+                        <select class="gk-select" bind:value={draft.eventType}>
                             <option value="default">Event</option>
                             <option value="outOfOffice">Out of office</option>
                             <option value="focusTime">Focus time</option>
@@ -555,16 +555,16 @@
                         </select>
                     </label>
                 {/if}
-                <label class="gc-field">
-                    <span>Show as</span>
-                    <select class="gc-select" bind:value={draft.transparency}>
+                <label class="gk-field">
+                    <span class="gk-label">Show as</span>
+                    <select class="gk-select" bind:value={draft.transparency}>
                         <option value="opaque">Busy</option>
                         <option value="transparent">Free</option>
                     </select>
                 </label>
-                <label class="gc-field">
-                    <span>Visibility</span>
-                    <select class="gc-select" bind:value={draft.visibility}>
+                <label class="gk-field">
+                    <span class="gk-label">Visibility</span>
+                    <select class="gk-select" bind:value={draft.visibility}>
                         <option value="default">Calendar's default</option>
                         <option value="public">Public</option>
                         <option value="private">Private</option>
@@ -572,28 +572,28 @@
                 </label>
             </div>
 
-            <label class="gc-field">
-                <span>Location</span>
-                <input class="gc-input" bind:value={draft.location} placeholder="Add location" data-testid="gc-editor-location" />
+            <label class="gk-field">
+                <span class="gk-label">Location</span>
+                <input class="gk-input" bind:value={draft.location} placeholder="Add location" data-testid="gc-editor-location" />
             </label>
 
-            <div class="gc-field">
-                <span>Video call</span>
+            <div class="gk-field">
+                <span class="gk-label">Video call</span>
                 {#if draft.meet === 'none'}
-                    <button type="button" class="gc-button" data-testid="gc-editor-meet" onclick={() => draft && (draft.meet = 'new')}>Add Google Meet video conferencing</button>
+                    <button type="button" class="gk-button" data-testid="gc-editor-meet" onclick={() => draft && (draft.meet = 'new')}>Add Google Meet video conferencing</button>
                 {:else}
                     <p class="gc-editor__inline">
                         {draft.meet === 'new' ? 'A Google Meet link is made when you save.' : 'This event has a Google Meet link.'}
-                        <button type="button" class="gc-link" onclick={() => draft && (draft.meet = 'none')}>Remove</button>
+                        <button type="button" class="gk-link" onclick={() => draft && (draft.meet = 'none')}>Remove</button>
                     </p>
                 {/if}
             </div>
 
-            <fieldset class="gc-field">
-                <legend>Guests</legend>
+            <fieldset class="gk-field">
+                <legend class="gk-label">Guests</legend>
                 <div class="gc-editor__inline">
                     <input
-                        class="gc-input"
+                        class="gk-input"
                         type="email"
                         placeholder="Add guests"
                         aria-label="Guest's email address"
@@ -607,9 +607,9 @@
                             }
                         }}
                     />
-                    <button type="button" class="gc-button" onclick={addGuest} data-testid="gc-editor-guest-add">Add</button>
+                    <button type="button" class="gk-button" onclick={addGuest} data-testid="gc-editor-guest-add">Add</button>
                 </div>
-                {#if guestError}<span class="gc-error">{guestError}</span>{/if}
+                {#if guestError}<span class="gk-error">{guestError}</span>{/if}
                 {#if draft.attendees.length > 0}
                     <ul class="gc-editor__list">
                         {#each draft.attendees as attendee, index (attendee.email)}
@@ -617,13 +617,13 @@
                                 <span class="gc-editor__grow">{attendee.displayName ?? attendee.email}{#if attendee.organizer}, organiser{/if}</span>
                                 {#if !attendee.organizer && !attendee.self}
                                     <label class="gc-editor__inline"><input type="checkbox" bind:checked={draft.attendees[index].optional} /> Optional</label>
-                                    <button type="button" class="gc-link" aria-label="Remove {attendee.email}" onclick={() => draft?.attendees.splice(index, 1)}>Remove</button>
+                                    <button type="button" class="gk-link" aria-label="Remove {attendee.email}" onclick={() => draft?.attendees.splice(index, 1)}>Remove</button>
                                 {/if}
                             </li>
                         {/each}
                     </ul>
                     {#if !draft.allDay && chosen}
-                        <button type="button" class="gc-button gc-editor__find" aria-expanded={findingTime} data-testid="gc-editor-find-time" onclick={() => (findingTime = !findingTime)}>Find a time</button>
+                        <button type="button" class="gk-button gc-editor__find" aria-expanded={findingTime} data-testid="gc-editor-find-time" onclick={() => (findingTime = !findingTime)}>Find a time</button>
                         {#if findingTime}
                             <FindTime
                                 {app}
@@ -645,74 +645,74 @@
                 {/if}
             </fieldset>
 
-            <fieldset class="gc-field">
-                <legend>Notifications</legend>
+            <fieldset class="gk-field">
+                <legend class="gk-label">Notifications</legend>
                 <label class="gc-editor__inline"><input type="checkbox" bind:checked={draft.remindersDefault} /> Use the calendar's default notifications</label>
                 {#if !draft.remindersDefault}
                     <ul class="gc-editor__list">
                         {#each draft.reminders as reminder, index (index)}
                             <li>
-                                <select class="gc-select" aria-label="How" bind:value={reminder.method}>
+                                <select class="gk-select" aria-label="How" bind:value={reminder.method}>
                                     <option value="popup">Notification</option>
                                     <option value="email">Email</option>
                                 </select>
-                                <input class="gc-input gc-editor__number" type="number" min="0" aria-label="How long before" bind:value={reminder.amount} />
-                                <select class="gc-select" aria-label="Unit" bind:value={reminder.unit}>
+                                <input class="gk-input gc-editor__number" type="number" min="0" aria-label="How long before" bind:value={reminder.amount} />
+                                <select class="gk-select" aria-label="Unit" bind:value={reminder.unit}>
                                     <option value="minutes">minutes</option>
                                     <option value="hours">hours</option>
                                     <option value="days">days</option>
                                     <option value="weeks">weeks</option>
                                 </select>
                                 <span class="gc-muted">before</span>
-                                <button type="button" class="gc-link" onclick={() => draft?.reminders.splice(index, 1)}>Remove</button>
+                                <button type="button" class="gk-link" onclick={() => draft?.reminders.splice(index, 1)}>Remove</button>
                             </li>
                         {/each}
                     </ul>
                     {#if draft.reminders.length < 5}
-                        <button type="button" class="gc-button" onclick={() => draft?.reminders.push({ method: 'popup', amount: 10, unit: 'minutes' })}>Add notification</button>
+                        <button type="button" class="gk-button" onclick={() => draft?.reminders.push({ method: 'popup', amount: 10, unit: 'minutes' })}>Add notification</button>
                     {:else}
                         <p class="gc-muted">Google allows five notifications per event.</p>
                     {/if}
                 {/if}
             </fieldset>
 
-            <fieldset class="gc-field">
-                <legend>Attachments</legend>
+            <fieldset class="gk-field">
+                <legend class="gk-label">Attachments</legend>
                 {#if draft.attachments.length > 0}
                     <ul class="gc-editor__list">
                         {#each draft.attachments as attachment, index (attachment.fileUrl)}
                             <li>
-                                <a class="gc-link gc-editor__grow" href={safeUrl(attachment.fileUrl)} target="_blank" rel="noopener noreferrer">{attachment.title ?? attachment.fileUrl}</a>
-                                <button type="button" class="gc-link" onclick={() => draft?.attachments.splice(index, 1)}>Remove</button>
+                                <a class="gk-link gc-editor__grow" href={safeUrl(attachment.fileUrl)} target="_blank" rel="noopener noreferrer">{attachment.title ?? attachment.fileUrl}</a>
+                                <button type="button" class="gk-link" onclick={() => draft?.attachments.splice(index, 1)}>Remove</button>
                             </li>
                         {/each}
                     </ul>
                 {/if}
                 {#each uploads as upload (upload.name)}
-                    <p class={upload.state === 'failed' ? 'gc-error' : 'gc-muted'} role="status">{upload.name}: {upload.state === 'uploading' ? 'uploading to your Google Drive…' : upload.message}</p>
+                    <p class={upload.state === 'failed' ? 'gk-error' : 'gc-muted'} role="status">{upload.name}: {upload.state === 'uploading' ? 'uploading to your Google Drive…' : upload.message}</p>
                 {/each}
                 {#if draft.attachments.length < 25}
                     <div class="gc-editor__inline">
-                        <label class="gc-button">
+                        <label class="gk-button">
                             Attach a file
                             <input class="gc-visually-hidden" type="file" multiple onchange={(event) => void attachFiles(event.currentTarget.files)} />
                         </label>
-                        <input class="gc-input gc-editor__grow" placeholder="Or paste a Google Drive link" aria-label="Google Drive link" bind:value={linkInput} />
-                        <button type="button" class="gc-button" onclick={attachLink} disabled={linkInput.trim() === ''}>Attach link</button>
+                        <input class="gk-input gc-editor__grow" placeholder="Or paste a Google Drive link" aria-label="Google Drive link" bind:value={linkInput} />
+                        <button type="button" class="gk-button" onclick={attachLink} disabled={linkInput.trim() === ''}>Attach link</button>
                     </div>
                     <p class="gc-muted gc-editor__hint">A file you attach is uploaded to your Google Drive, as Google Calendar does.</p>
                 {/if}
             </fieldset>
 
-            <div class="gc-field">
-                <span>Description</span>
+            <div class="gk-field">
+                <span class="gk-label">Description</span>
                 <RichText initial={parseDescription(initialDescription)} bind:root={descriptionRoot} oninput={() => (descriptionTouched = true)} />
             </div>
 
             <div class="gc-editor__footer">
                 <span class="gc-muted gc-editor__hint">Ctrl+Enter saves</span>
-                <button type="button" class="gc-button" onclick={() => void requestClose()} disabled={saving}>Cancel</button>
-                <button type="submit" class="gc-button gc-button--primary" disabled={saving} data-testid="gc-editor-save">{saving ? 'Saving…' : 'Save'}</button>
+                <button type="button" class="gk-button" onclick={() => void requestClose()} disabled={saving}>Cancel</button>
+                <button type="submit" class="gk-button gk-button--primary" disabled={saving} data-testid="gc-editor-save">{saving ? 'Saving…' : 'Save'}</button>
             </div>
         </form>
     {/if}
