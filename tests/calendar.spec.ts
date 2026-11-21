@@ -177,6 +177,17 @@ test.describe('the calendar', () => {
         await expect(view.getByText('Sort the tools')).toBeVisible()
     })
 
+    // EtherPK's select and button are one height (the Client's style guide), so the view picker
+    // lines up with the buttons beside it with no height of its own.
+    test('the view picker is as tall as the buttons beside it', async ({ page }) => {
+        await openGraph(page, gardenGoogle())
+        const view = await openCalendar(page)
+        const picker = (await view.getByTestId('gc-view-picker').boundingBox())!
+        const create = (await view.getByTestId('gc-create').boundingBox())!
+        expect(Math.round(picker.height)).toBe(Math.round(create.height))
+        expect(Math.abs(picker.y - create.y)).toBeLessThanOrEqual(0.5)
+    })
+
     test('creates an event, asking first whether to email its guest', async ({ page }) => {
         const google = gardenGoogle()
         await openGraph(page, google)
@@ -364,7 +375,9 @@ test.describe('the Journal Panel', () => {
         await expect(page.getByTestId('gc-editor').getByTestId('gc-editor-calendar')).toHaveValue(`${GARDENER}|${GARDENER}`)
     })
 
-    test("draws its actions as EtherPK's own small buttons, about as tall as their heading, in either theme", async ({ page }) => {
+    // EtherPK's small button is a size of its own (30px, the Client's style guide), so the buttons are
+    // that tall and centred on the heading beside them, whatever the heading's height.
+    test("draws its actions as EtherPK's own small buttons, centred on their heading, in either theme", async ({ page }) => {
         const google = gardenGoogle()
         google.accounts.get(GARDENER)!.tasks = { list1: { title: 'Garden jobs', items: [] } }
         await openGraph(page, google, { scopes: 'openid email https://www.googleapis.com/auth/tasks' })
@@ -381,16 +394,17 @@ test.describe('the Journal Panel', () => {
                 for (const id of buttons) {
                     const button = head.getByTestId(id)
                     const box = (await button.boundingBox())!
-                    expect(box.height, id).toBeLessThanOrEqual(title!.height + 4)
                     expect(Math.abs(box.y + box.height / 2 - (title!.y + title!.height / 2)), id).toBeLessThan(2)
                     // The same classes on a button in the Client's own page, outside the panel's shadow root.
                     const style = await button.evaluate((inPanel) => {
                         const inPage = document.createElement('button')
                         inPage.className = 'gk-button gk-button--small'
+                        inPage.textContent = 'Add'
                         document.body.append(inPage)
                         const read = (element: Element) => {
                             const own = getComputedStyle(element)
-                            return [own.borderTopColor, own.borderRadius, own.color, own.fontSize, own.fontWeight, own.paddingLeft, own.textDecorationLine].join(' ')
+                            const height = Math.round(element.getBoundingClientRect().height)
+                            return [own.borderTopColor, own.borderRadius, own.color, own.fontSize, own.fontWeight, own.paddingLeft, own.textDecorationLine, `${height}px`].join(' ')
                         }
                         const both = { panel: read(inPanel), page: read(inPage) }
                         inPage.remove()

@@ -537,17 +537,6 @@
     .gc-toolbar__state {
         color: var(--gk-text-muted);
     }
-    /* The view picker matches the buttons beside it (`gk-button`: 34px, and 44px on a touch
-       screen). A select sizes itself unlike a button, so its height is set outright. */
-    .gc-toolbar__views .gk-select {
-        height: 2.125rem;
-        padding-block: 0;
-    }
-    @media (pointer: coarse) {
-        .gc-toolbar__views .gk-select {
-            height: 2.75rem;
-        }
-    }
     .gc-scrim {
         position: absolute;
         inset: 0;
